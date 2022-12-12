@@ -5,6 +5,7 @@ import csv
 app = Flask(__name__)
 data_list = []
 
+
 # def receive_data():
 # filename: str = input('Enter the name of the file with data: ')
 # try:
@@ -27,7 +28,7 @@ def welcome():
     return 'Welcome to the Stocktaking application. What would you like to do next?'
 
 
-@app.route('/products', methods=['GET', 'POST'])  #czy powinnam zmienić nazwę endpointa i funkcji poniżej?
+@app.route('/products', methods=['GET', 'POST'])  # czy powinnam zmienić nazwę endpointa i funkcji poniżej?
 def products():
     response_data = {
         'success': True,
@@ -51,23 +52,49 @@ def products():
             response.status_code = 201
         return response
 
-#returns information about specific resource (product)
 
-@app.route('/products/<post_id>')
-def item(post_id):
+# returns information about specific resource (product)
+
+@app.route('/products/<int:index>')
+def get_product(index):
     response_data = {
         'success': True,
         'data': []
     }
+            #poprawic wywolanie indeksu, ktory nie istnieje!
+
+    for dicts in data_list:
+        number = int(dicts.get("id"))
+        if number == index:
+            index = number - 1
+            item = data_list[index]
+            response_data['data'] = item
+            return jsonify(response_data)
+
+
 
     # item = ''
     # for user_id in data_list:
     #     if user_id['id'] == user_id:
     #         item = user_id
-    item = [post for post in data_list if post['id'] == post_id][0]
+    """"" 
+    space
+    """
+    # item = [dicts for dicts in data_list if dicts["id"] == index][0]
+    #
+    # response_data['data'] = item
+    # return jsonify(response_data)
 
-    response_data['data'] = item
-    return jsonify(response_data)
+@app.errorhandler(404)
+def not_found(error):
+    response_data = {
+        'success': False,
+        'data': [],
+        'error': 'Not found'
+    }
+    response = jsonify(response_data)
+    response.status_code = 404
+    return response
 
 # @app.route('/delete_content')
 #
