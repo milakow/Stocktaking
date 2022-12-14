@@ -19,7 +19,7 @@ for dicts in data_list:
     number = int(dicts.get('id'))
     print(number)
     if number == user_id:
-        item = data_list[user_id]
-        print(user_id, "---", item)
+        dicts.clear()
+        print(data_list)
 
 
