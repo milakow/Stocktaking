@@ -7,6 +7,7 @@ try:
     with open(f'{filename}.csv', encoding='utf-8-sig') as f:
         reader = csv.DictReader(f)
         for row in reader:
+            # print(row)
             data_list.append(row)
 except FileNotFoundError:
     print(f'File {filename} was not found.')
