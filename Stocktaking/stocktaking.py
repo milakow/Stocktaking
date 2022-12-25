@@ -16,16 +16,23 @@ data_list = []
 # except FileNotFoundError:
 #     print(f'File {filename} was not found.')
 
-@app.route('/', methods=['GET']) #dodac endpoint #dlaczego miałam tu 'post' patrz Kamila na zdj
-def provide_file_path():
+@app.route('/data', methods=['POST'])
+def provide_file_path(file_path):
     response_data = {
-        'success': True,
-        'data': f'Mam wszystkie produkty'
+        'success': True,          # it might cause a problem; 'data' will be in json format'; what with 'success' key?
+        'data': []
     }
-    s = helpers.receive_data()
+
+    # file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
+    object_data = helpers.receive_data(file_path)
+    response_data['data'] = helpers.return_to_json(object_data)
+
+    # response_data['data'] = json_data
+    # s = helpers.receive_data()
     json_product = json.dumps(helpers.receive_data())
     products = helpers.receive_data()
-    return s
+
+    return response_data
 
 
 @app.route('/products_all', methods=['GET'])

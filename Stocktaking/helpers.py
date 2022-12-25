@@ -1,8 +1,8 @@
-# endpointy
+import json
 from products import Product
+from products import ProductEncoder
 
-def receive_data():
-    file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
+def receive_data(file_path):
     try:
         with open(file_path, encoding='utf-8-sig') as f:
             content = f.read().split('\n')
@@ -18,8 +18,9 @@ def receive_data():
     except FileNotFoundError:
         return f'File path "{file_path}" was not found.'
 
-def return_to_json(product_list):
-    pass
+def return_to_json(product_data):
+    json_str = json.dumps(Product(product_data), cls=ProductEncoder)
+    return json_str
 # funkcja formatujaca liste produktow w jsona
 
 # if __name__ == "__main__":
