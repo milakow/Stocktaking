@@ -19,13 +19,13 @@ app = Flask(__name__)
 # except FileNotFoundError:
 #     print(f'File {filename} was not found.')
 
-@app.route('/get_data', methods=['GET']) # change method to POST (key value file path)
+@app.route('/get_data', methods=['POST']) # change method to POST (key value file path)
 def provide_file_path():
     # response_data = {
     #     'success': True,          # it might cause a problem; 'data' will be in json format'; what with 'success' key?
     #     'data': []
     # }
-    file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
+    # file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
     # object_data = helpers.receive_data(file_path)
     # json_str = json.dumps(object_data, cls=ProductEncoder)
     # json_str = json.dumps(Product(object_data), indent=4)
@@ -37,6 +37,7 @@ def provide_file_path():
     # s = helpers.receive_data()
     # json_product = json.dumps(helpers.receive_data(file_path))
     # products = helpers.receive_data()
+    file_path = request.json
 
     pr_index, name, amount, price = helpers.get_data(file_path)
     prod_list = helpers.create_object(pr_index, name, amount, price)
