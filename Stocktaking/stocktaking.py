@@ -1,10 +1,13 @@
 from flask import Flask, jsonify, request
-# from products import Product
+from products import Product, ProductEncoder
 import helpers
 import json
+data_list = []
 
 app = Flask(__name__)
-data_list = []
+
+#pr_index,name,amount,price
+
 
 # def receive_data():
 # filename: str = input('Enter the name of the file with data: ')
@@ -16,23 +19,29 @@ data_list = []
 # except FileNotFoundError:
 #     print(f'File {filename} was not found.')
 
-@app.route('/data', methods=['POST'])
-def provide_file_path(file_path):
-    response_data = {
-        'success': True,          # it might cause a problem; 'data' will be in json format'; what with 'success' key?
-        'data': []
-    }
+@app.route('/get_data', methods=['GET']) # change method to POST (key value file path)
+def provide_file_path():
+    # response_data = {
+    #     'success': True,          # it might cause a problem; 'data' will be in json format'; what with 'success' key?
+    #     'data': []
+    # }
+    file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
+    # object_data = helpers.receive_data(file_path)
+    # json_str = json.dumps(object_data, cls=ProductEncoder)
+    # json_str = json.dumps(Product(object_data), indent=4)
+    # return json_str
 
-    # file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
-    object_data = helpers.receive_data(file_path)
-    response_data['data'] = helpers.return_to_json(object_data)
+    # response_data = helpers.return_to_json(object_data)
 
     # response_data['data'] = json_data
     # s = helpers.receive_data()
-    json_product = json.dumps(helpers.receive_data())
-    products = helpers.receive_data()
+    # json_product = json.dumps(helpers.receive_data(file_path))
+    # products = helpers.receive_data()
 
-    return response_data
+    pr_index, name, amount, price = helpers.get_data(file_path)
+    prod_list = helpers.create_object(pr_index, name, amount, price)
+    json_str = json.dumps(prod_list, cls=ProductEncoder)
+    return json_str
 
 
 @app.route('/products_all', methods=['GET'])

@@ -1,37 +1,63 @@
-import csv, json
+import csv
+import json
+from products import ProductEncoder, Product
+import json
 
-data_list = []
+# **************************************
+# data_list = []
+# ##program pakuje mi dane w listę słowników i z niej formatuje dane do formatu json,aby moc je wyswietlic (dziala)
+# def receive_data(file_path):
+#     try:
+#         with open(file_path, encoding='utf-8-sig') as f:
+#             content = csv.DictReader(f)
+#             for row in content:
+#                 data_list.append(row)
+#             return data_list
+#     except FileNotFoundError:
+#         return f'File {file_path} was not found.'
+#
+# def return_to_json():
+#     file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
+#     data_list = receive_data(file_path)
+#     data_json = json.dumps(data_list, cls=ProductEncoder)
+#     print(data_json)
 
-def receive_data():
-    # filename = input('Enter the name of the file with data: ')
-
+def get_data(file_path):
     try:
-        with open(f'{filename}.csv', encoding='utf-8-sig') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # print(row)
-                data_list.append(row)
+        with open(file_path, encoding='utf-8-sig') as f:
+            content = f.read().split('\n')
+            pr_index = []
+            name = []
+            amount = []
+            price = []
+            for row in content:
+                data = row.split(',')
+                pr_index.append(data[0])
+                name.append(data[1])
+                amount.append(data[2])
+                price.append(data[3])
+                # product = Product(data[0], data[1], data[2], data[3])
+                # product = Product()
+                # product_list.append(Product(data[0], data[1], data[2], data[3]))
+
+            return pr_index, name, amount, price
     except FileNotFoundError:
-        print(f'File {filename} was not found.')
-    print(data_list)
+        return f'File path "{file_path}" was not found.'
 
-    print('**************************************')
+def create_object(pr_index, name, amount, price):
+    product_list = []
+    for x in range(len(pr_index)):
+        productx = Product(pr_index[x], name[x], amount[x], price[x])
+        product_list.append(productx)
+    return product_list
 
-    user_id = int(input("Wprowadz id: "))
-    for dicts in data_list:
-        number = int(dicts.get('id'))
-        print(number)
-        if number == user_id:
-            dicts.clear()
-            print(data_list)
 
-def return_to_json():
-    json_str = json.dumps({"id": 1234})
-    print(json_str)
-
+def main():
+    data_list = []
+    file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
+    pr_index, name, amount, price = get_data(file_path)
+    print(create_object(pr_index, name, amount, price))
+    # data_json = json.dumps(data_list, cls=ProductEncoder)
 
 if __name__ == '__main__':
-    return_to_json()
-
-
-
+    main()
