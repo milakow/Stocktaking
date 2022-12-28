@@ -45,19 +45,37 @@ def get_data(file_path):
         return f'File path "{file_path}" was not found.'
 
 def create_object(pr_index, name, amount, price):
-    product_list = []
+    product_list = {}
     for x in range(len(pr_index)):
         productx = Product(pr_index[x], name[x], amount[x], price[x])
-        product_list.append(productx)
+        product_list[x+1] = productx
     return product_list
+
+
+def delete_product():
+    with open("saved_data", 'w+') as f:
+        content = f.read()
+    #
+    # response_data = {
+    #     'success': True,
+    #     'data': content
+    # }
+    print(type(content))
+    for prod_list in content:
+        for prod_data in prod_list:
+            if prod_data[0] == index:
+                content.replace(prod_data, "")
+            # return type(content)
 
 
 def main():
     data_list = []
     file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
     pr_index, name, amount, price = get_data(file_path)
-    print(create_object(pr_index, name, amount, price))
+    # print(create_object(pr_index, name, amount, price))
     # data_json = json.dumps(data_list, cls=ProductEncoder)
+    delete_product()
+
 
 if __name__ == '__main__':
     main()

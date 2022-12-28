@@ -44,7 +44,7 @@ def get_data(file_path):
             amount = []
             price = []
             for row in content:
-                data = row.split(',')
+                data = row.split(",")
                 pr_index.append(data[0])
                 name.append(data[1])
                 amount.append(data[2])
@@ -62,3 +62,8 @@ def create_object(pr_index, name, amount, price):
         productx = Product(pr_index[x], name[x], amount[x], price[x])
         product_list.append(productx)
     return product_list
+
+def save_data(filename):
+    with open('saved_data', 'w') as f:
+        f.write(filename)
+
