@@ -23,10 +23,9 @@ def receive_data(file_path):
     except FileNotFoundError:
         return f'File {file_path} was not found.'
 
-def return_to_json(product_data):
-    json_str = json.dumps(Product(product_data), cls=ProductEncoder)
-    return json_str
-# funkcja formatujaca liste produktow w jsona
+# def return_to_json(product_data):
+#     json_str = json.dumps(Product(product_data), cls=ProductEncoder)
+#     return json_str
 
 def get_data(file_path):
     try:

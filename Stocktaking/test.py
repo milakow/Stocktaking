@@ -4,24 +4,7 @@ from products import StockEncoder, Product, StockProducts
 import json
 
 product_list = []
-# **************************************
-# data_list = []
-# ##program pakuje mi dane w listę słowników i z niej formatuje dane do formatu json,aby moc je wyswietlic (dziala)
-# def receive_data(file_path):
-#     try:
-#         with open(file_path, encoding='utf-8-sig') as f:
-#             content = csv.DictReader(f)
-#             for row in content:
-#                 data_list.append(row)
-#             return data_list
-#     except FileNotFoundError:
-#         return f'File {file_path} was not found.'
-#
-# def return_to_json():
-#     file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
-#     data_list = receive_data(file_path)
-#     data_json = json.dumps(data_list, cls=ProductEncoder)
-#     print(data_json)
+obj_list = []
 
 def get_data(file_path):
     try:
@@ -53,7 +36,6 @@ def create_object(pr_index, name, amount, price):
     return product_list  # zwraca mi liste obiektow
 
 def create_obj_list(product_list):
-    obj_list = StockProducts(product_list)
 
     lista = []
     for product in obj_list.prod_list:
@@ -61,57 +43,83 @@ def create_obj_list(product_list):
 
 def load_data(path_of_file):  # niech pokazuje tylko status 201 (ok)
     response_data = {
-        # 'success': True,
+        'success': True,
         'data': []  # prpduct list z create object ma zwrocic
     }
     # filepath = request.json
     # path_of_file = filepath["filepath"]
-    try:       # wykorzystac "try"-  jak sie uda stworzyc obiekt to niech zwroic status- 201, jak nie np 400
+    try:  # wykorzystac "try"-  jak sie uda stworzyc obiekt to niech zwroic status- 201, jak nie np 400
         pr_index, name, amount, price = get_data(path_of_file)
         prod_lis = create_object(pr_index, name, amount, price)
-        # prod_obj = json.dumps(prod_list, cls=ProductEncoder, indent=4)
+        global obj_list
         obj_list = StockProducts(prod_lis)
-        print(obj_list)
-        js_obj_list = json.dumps(obj_list, cls=StockEncoder, indent=4)
-        if prod_lis is not None:
-            response_data['data'] = js_obj_list
-            # response = jsonify(response_data)
-            # response.status_code = 200
-        # else:
-        #     response_data['success'] = False
-        #     response.status_code = 400
+        return obj_list
+    #     if prod_lis is not None:
+    #         if response_data["success"]:
+    #             response_data["data"] = obj_list.get_products_as_dicts()
+    #         return response_data
     except ValueError:  # ale to nie jest value error w moim programie przeciez
-        # response = jsonify(response_data)
-        response_data['success'] = False
-        # response.status_code = 404
-    return response_data
-
+         response_data["success"] = False
+    #     response_data["data"] = f"Data could not been loaded."
 
 def main():
-    data_list = []
     file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
     pr_index, name, amount, price = get_data(file_path)
     prod_list = create_object(pr_index, name, amount, price)
-    print(StockProducts(prod_list).prod_list)
+    # print(StockProducts(prod_list).prod_list)
+    obj_list = load_data(file_path)
+    lista = []
+    pr_id = []
+    index = 2
 
-    # print(type(prod1))
-    # list_prod_list = StockProducts(prod_list)
-    # print(create_obj_list(prod_list))
+    # GET SINGLE PRODUCT
+    # for elements in obj_list.prod_list:
+    #     lista.append(elements.__dict__)
+    #
+    # for prod in lista:
+    #     # print(pr_id)
+    #     if str(index) == prod["pr_index"]:
+    #         item = lista[index - 1]
+    #         print(item)
+    #
+    #     pr_id.append(prod["pr_index"])
+    # if str(index) not in pr_id:
+    #     print('uups')
 
-# def delete_product():
-#     with open("saved_data", 'w+') as f:
-#         content = f.read()
-#     #
-#     # response_data = {
-#     #     'success': True,
-#     #     'data': content
-#     # }
-#     print(type(content))
-#     for prod_list in content:
-#         for prod_data in prod_list:
-#             if prod_data[0] == index:
-#                 content.replace(prod_data, "")
-#             # return type(content)
+    # DELETE PRODUCT
+    # for elements in obj_list.prod_list:
+    #     lista.append(elements.__dict__)
+    #
+    # for prod in lista:
+    #     # print(pr_id)
+    #     if str(index) == prod["pr_index"]:
+    #         lista.remove(lista[index-1])
+    # print(lista)
+
+    # ADD NEW PRODUCT
+
+    for elements in obj_list.prod_list:
+        lista.append(elements.__dict__)
+    for prod in lista:
+    # print(pr_id)
+        if str(index) == prod["pr_index"]:
+            item = lista[index - 1]
+            print(item)
+
+        pr_id.append(prod["pr_index"])
+    if str(index) not in pr_id:
+        print('uups')
+
+
+    # GET VALUE
+    # value = 1
+    # for elements in obj_list.prod_list:
+    #     value = int(elements.count_value())
+    # print(value)
+
+
+
+
 
 
 if __name__ == '__main__':

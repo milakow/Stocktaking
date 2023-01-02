@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, request
+
+from Stocktaking.products import StockProducts
 from products import Product, StockProducts, StockEncoder
 import helpers
 import json
@@ -18,60 +20,76 @@ def validate_json(product_list):
 
 @app.route('/data_loading', methods=['POST'])
 def load_data():  # niech pokazuje tylko status 201 (ok)
-    # response_data = {
-    #     # 'success': True,
-    #     'data': []  # prpduct list z create object ma zwrocic
-    # }
+    response_data = {
+        "success": True,
+        "data": []
+    }
     filepath = request.json
     path_of_file = filepath["filepath"]
-    try:       # wykorzystac "try"-  jak sie uda stworzyc obiekt to niech zwroic status- 201, jak nie np 400
+    try:
         pr_index, name, amount, price = helpers.get_data(path_of_file)
         prod_lis = helpers.create_object(pr_index, name, amount, price)
-        # prod_obj = json.dumps(prod_list, cls=ProductEncoder, indent=4)
         global obj_list
         obj_list = StockProducts(prod_lis)
-        # js_obj_list = json.dumps(obj_list, cls=StockEncoder, indent=4)
         if prod_lis is not None:
-           # response_data['data'] = js_obj_list
-            response = jsonify({"success": True,
-                                'data': obj_list.get_products_as_dicts()})
+            if response_data["success"]:
+                response_data["data"] = obj_list.get_products_as_dicts()
+            response = jsonify(response_data)
             response.status_code = 200
             return response
-        # else:
-        #     response_data['success'] = False
-        #     response.status_code = 400
-    except ValueError:  # ale to nie jest value error w moim programie przeciez
-        # response = jsonify(response_data)
-        # response_data['success'] = False
-        response = response = jsonify({"success": False,
-                                       "data": "Data could not been loaded."})
+    except ValueError:
+        response_data["success"] = False
+        response_data["data"] = f"Data could not been loaded."
+        response = jsonify(response_data)
         response.status_code = 404
         return response
 
 
 # returns information about all products in app storage
 @app.route('/products_all')
-def get_products(obj_list):
+def get_products():
+    global obj_list
     response_data = {
-        'success': True,
-        'data': [] # prpduct list z create object ma zwrocic
+        "success": True,
+        "data": obj_list.get_products_as_dicts()
     }
-    # obj_list = StockProducts(prod_list)
+    # global obj_list
+    # response_data["data"] = obj_list.get_products_as_dicts()
     response = jsonify(response_data)
-    response_data['data'] = obj_list
     return response
 
+
+# returns information about specific resource (product)
+@app.route('/products/<int:index>')
+def get_product(index: int):
+    global obj_list
+    response_data = {
+        'success': True,
+        'data': obj_list.get_products_as_dicts()
+    }
+
+    lista = []
+    resp = {}
+    pr_id = []
+    for elements in obj_list.prod_list:
+        lista.append(elements.__dict__)
+    for prod in lista:
+        if str(index) == prod["pr_index"]:
+            # return lista[index - 1]
+            resp = lista[index - 1]
+        pr_id.append(prod["pr_index"])
+    if str(index) not in pr_id:
+        resp = f"Product with id {index} not found in product list."
+    response_data["data"] = resp
+    return jsonify(response_data)
 
 # DOKONCZYC
 # allows to add new product to the storage
 @app.route('/product_new', methods=['POST'])
 def add_product():
-    with open("saved_data", 'r') as f:
-        content = f.read()
-
     response_data = {
         'success': True,
-        'data': content
+        'data': []
     }
     data = request.json
     new_prod_id = data["pr_index"]
@@ -97,40 +115,6 @@ def add_product():
 
     return response
 
-
-# returns information about specific resource (product)
-@app.route('/products/<int:index>')
-def get_product(index: int):
-    with open("saved_data", 'r') as f:
-        content = f.read()
-
-    response_data = {
-        'success': True,
-        'data': content
-    }
-    #  poprawic wywolanie indeksu, ktory nie istnieje!
-
-    for obj in content:
-        number = content["pr_index"]
-        if number == index:
-            index = number - 1
-            item = data_list[index]
-            response_data['data'] = item
-            return jsonify(response_data)
-
-    # item = ''
-    # for user_id in data_list:
-    #     if user_id['id'] == user_id:
-    #         item = user_id
-    """"" 
-    space
-    """
-    # item = [dicts for dicts in data_list if dicts["id"] == index][0]
-    #
-    # response_data['data'] = item
-    # return jsonify(response_data)
-
-
 @app.errorhandler(404)
 def not_found(error):
     response_data = {
@@ -145,44 +129,55 @@ def not_found(error):
 
 @app.route('/products/<int:index>', methods=['PUT'])  # DO DOKOŃCZENIA
 def update_product(index: int):
-    return jsonify({
-        'success': True,
-        'data': f'Product {index} has been updated.'
-    })
-
-
-@app.route('/products/<int:index>', methods=['DELETE'])  # DO DOKOŃCZENIA
-def delete_product(index: int):
-    with open("saved_data", 'r+') as f:
-        content = f.read()
-        content2 = content.replace(" ", "")
-
+    global obj_list
     response_data = {
         'success': True,
-        'data': content
+        'data': obj_list.get_products_as_dicts()
+    }
+    updated_data = request.json
+
+
+
+
+# allows to delete product from the storage
+@app.route('/products/<int:index>', methods=['DELETE'])
+def delete_product(index: int):
+    global obj_list
+    response_data = {
+        'success': True,
+        'data': obj_list.get_products_as_dicts()
     }
 
-    for prod_list in content:
-        for prod_data in prod_list:
-            if prod_data[0] == index:
-                pass
-            return content2
+    lista = []
+    for elements in obj_list.prod_list:
+        lista.append(elements.__dict__)
+    for prod in lista:
+        if str(index) == prod["pr_index"]:
+            lista.remove(lista[index - 1])
+    response_data["data"] = lista
+    return jsonify(response_data)
 
-    # obj_list.remove(obj)
 
-
-@app.route('/products/<int:index>/get_value', methods=['GET'])
-def get_value(index: int):
+# returns value of the product
+@app.route('/products/get_value/<int:index>', methods=['GET'])
+def get_value(index: int):                                      # try to change code to use func in Product class
     pass
+    global obj_list
+    response_data = {
+        'success': True,
+        'data': obj_list.get_products_as_dicts()
+    }
+    lista = []
+    value = 1
+    for elements in obj_list.prod_list:
+        lista.append(elements.__dict__)
+    for prod in lista:
+        if str(index) == prod["pr_index"]:
+            value = (int(prod["price"]) * (int(prod["amount"])))
 
+    response_data["data"] = f"Value of product no {index} is {value} EUR."
+    return jsonify(response_data)
 
-# def main():
-#     # filename = input('Enter the name of the file with data: ')
-#     receive_data()
-
-
-# csv file name to enter below
-# list-of-products
 
 if __name__ == '__main__':
     app.run(debug=True)
