@@ -97,18 +97,26 @@ def main():
     # print(lista)
 
     # ADD NEW PRODUCT
-
+    new_prod_id = "5"
+    new_prod_name = "moccha"
+    new_prod_amount = "2"
+    new_prod_price = "10"
+    key_list = ["pr_index", "name", "amount", "price"]
+    slownik = {}
+    slownik["pr_index"] = new_prod_id
+    slownik["name"] = new_prod_name
+    slownik["amount"] = new_prod_amount
+    slownik["price"] = new_prod_price
+    addLista = []
     for elements in obj_list.prod_list:
-        lista.append(elements.__dict__)
-    for prod in lista:
-    # print(pr_id)
-        if str(index) == prod["pr_index"]:
-            item = lista[index - 1]
-            print(item)
+        addLista.append(elements.__dict__)
+    new_prod_list = create_object(new_prod_id, new_prod_name, new_prod_amount, new_prod_price)
+    addLista.append(slownik)
+    # print(addLista)
 
-        pr_id.append(prod["pr_index"])
-    if str(index) not in pr_id:
-        print('uups')
+    add_Obj_list = StockProducts(addLista)
+    # addLista.append(add_Obj_list)
+    print(add_Obj_list.prod_list)
 
 
     # GET VALUE

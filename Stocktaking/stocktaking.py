@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 
-from Stocktaking.products import StockProducts
-from products import Product, StockProducts, StockEncoder
+# from products import StockProducts
+from products import Product, StockProducts, StockEncoder, ProductEncoder
 import helpers
 import json
 
@@ -83,37 +83,37 @@ def get_product(index: int):
     response_data["data"] = resp
     return jsonify(response_data)
 
-# DOKONCZYC
 # allows to add new product to the storage
 @app.route('/product_new', methods=['POST'])
 def add_product():
+    global obj_list
     response_data = {
         'success': True,
-        'data': []
+        'data': obj_list.get_products_as_dicts()
     }
-    data = request.json
-    new_prod_id = data["pr_index"]
-    new_prod_name = data["name"]
-    new_prod_amount = data["amount"]
-    new_prod_price = data["price"]
+    new_data = request.json
+    lista = []
+    for elements in obj_list.prod_list:
+        lista.append(elements.change_to_dict())
 
-    # if 'id' not in data or 'name' not in data or 'amount' not in data or 'price' not in data:
-    if new_prod_id not in content or new_prod_name not in content or new_prod_amount not in content or new_prod_price not in content:  # chyba niepotrzebnie to zrobilam
-        response_data['success'] = False
-        response_data['error'] = 'Please provide all required information!'
+    new_prod_dict = {}
+    try:
+        new_prod_dict["pr_index"] = new_data["pr_index"]
+        new_prod_dict["name"] = new_data["name"]
+        new_prod_dict["amount"] = new_data["amount"]
+        new_prod_dict["price"] = new_data["price"]
+
+        lista.append(new_prod_dict)
+        resp_list = StockProducts(lista)
+        response_data["data"] = resp_list.prod_list
+        response = jsonify(response_data)
+    except KeyError as error:
+        response_data["data"] = f'The entered data {error} is inccorect'
+        response_data["success"] = False
         response = jsonify(response_data)
         response.status_code = 400
-    else:
-        prod_list = helpers.create_object(new_prod_id, new_prod_name, new_prod_amount, new_prod_price)
-        prod_obj = json.dumps(prod_list, cls=ProductEncoder, indent=4)
-        response_data['data'] = prod_obj
-
-        # data_list.append(data)
-        # response_data['data'] = data_list
-        response = jsonify(response_data)
-        response.status_code = 201
-
     return response
+
 
 @app.errorhandler(404)
 def not_found(error):
@@ -126,7 +126,7 @@ def not_found(error):
     response.status_code = 404
     return response
 
-
+# TO BE CONTINUED
 @app.route('/products/<int:index>', methods=['PUT'])  # DO DOKOŃCZENIA
 def update_product(index: int):
     global obj_list
