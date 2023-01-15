@@ -1,7 +1,7 @@
 import csv
 import json
-from products import StockEncoder, Product, StockProducts
-import json
+from object_classes import Product, StockProducts
+import helpers
 
 product_list = []
 obj_list = []
@@ -41,94 +41,76 @@ def create_obj_list(product_list):
     for product in obj_list.prod_list:
         lista.append(product.name)
 
-def load_data(path_of_file):  # niech pokazuje tylko status 201 (ok)
-    response_data = {
-        'success': True,
-        'data': []  # prpduct list z create object ma zwrocic
-    }
-    # filepath = request.json
-    # path_of_file = filepath["filepath"]
-    try:  # wykorzystac "try"-  jak sie uda stworzyc obiekt to niech zwroic status- 201, jak nie np 400
-        pr_index, name, amount, price = get_data(path_of_file)
-        prod_lis = create_object(pr_index, name, amount, price)
-        global obj_list
-        obj_list = StockProducts(prod_lis)
-        return obj_list
-    #     if prod_lis is not None:
-    #         if response_data["success"]:
-    #             response_data["data"] = obj_list.get_products_as_dicts()
-    #         return response_data
-    except ValueError:  # ale to nie jest value error w moim programie przeciez
-         response_data["success"] = False
-    #     response_data["data"] = f"Data could not been loaded."
+# def load_data(path_of_file):  # niech pokazuje tylko status 201 (ok)
+#     response_data = {
+#         'success': True,
+#         'data': []  # prpduct list z create object ma zwrocic
+#     }
+#     # filepath = request.json
+#     # path_of_file = filepath["filepath"]
+#     try:  # wykorzystac "try"-  jak sie uda stworzyc obiekt to niech zwroic status- 201, jak nie np 400
+#         pr_index, name, amount, price = get_data(path_of_file)
+#         prod_lis = create_object(pr_index, name, amount, price)
+#         global obj_list
+#         obj_list = StockProducts(prod_lis)
+#         return obj_list
+#     #     if prod_lis is not None:
+#     #         if response_data["success"]:
+#     #             response_data["data"] = obj_list.get_products_as_dicts()
+#     #         return response_data
+#     except ValueError:  # ale to nie jest value error w moim programie przeciez
+#          response_data["success"] = False
+#     #     response_data["data"] = f"Data could not been loaded."
 
 def main():
     file_path = r"C:\Users\Kamila\PycharmProjects\Stocktaking\Stocktaking\list_of_products.csv"
     pr_index, name, amount, price = get_data(file_path)
-    prod_list = create_object(pr_index, name, amount, price)
-    # print(StockProducts(prod_list).prod_list)
-    obj_list = load_data(file_path)
-    lista = []
-    pr_id = []
-    index = 2
+    # prod_list = create_object(pr_index, name, amount, price)
 
-    # GET SINGLE PRODUCT
-    # for elements in obj_list.prod_list:
-    #     lista.append(elements.__dict__)
-    #
-    # for prod in lista:
-    #     # print(pr_id)
-    #     if str(index) == prod["pr_index"]:
-    #         item = lista[index - 1]
-    #         print(item)
-    #
-    #     pr_id.append(prod["pr_index"])
-    # if str(index) not in pr_id:
-    #     print('uups')
+    #GET_PRODUCT
+    response_data = {
+            'success': True,
+            'data': helpers.stock_object.get_products_as_dicts()
+        }
+    index = 1
+    list_of_products = []
+    response_dict = {}
+    product_id_list = []
+    print(helpers.data_loader(file_path))
+    for element in helpers.stock_object.prod_list:
+        pass
+        # print(type(element))
+    #     list_of_products.append(element.change_to_dict())
+    # for product in list_of_products:
+    #     if str(index) == product["pr_index"]:
+    #         # return list_of_products[index - 1]
+    #         response_dict = list_of_products[index - 1]
+    #     product_id_list.append(product["pr_index"])
+    # if str(index) not in product_id_list:
+    #     response_dict = f"Product with id {index} not found in product list."
+    # response_data["data"] = response_dict
 
-    # DELETE PRODUCT
-    # for elements in obj_list.prod_list:
-    #     lista.append(elements.__dict__)
-    #
-    # for prod in lista:
-    #     # print(pr_id)
-    #     if str(index) == prod["pr_index"]:
-    #         lista.remove(lista[index-1])
-    # print(lista)
+"""
+def get_product(index: int):
+    response_data = {
+        'success': True,
+        'data': helpers.stock_object.get_products_as_dicts()
+    }
 
-    # ADD NEW PRODUCT
-    new_prod_id = "5"
-    new_prod_name = "moccha"
-    new_prod_amount = "2"
-    new_prod_price = "10"
-    key_list = ["pr_index", "name", "amount", "price"]
-    slownik = {}
-    slownik["pr_index"] = new_prod_id
-    slownik["name"] = new_prod_name
-    slownik["amount"] = new_prod_amount
-    slownik["price"] = new_prod_price
-    addLista = []
-    for elements in obj_list.prod_list:
-        addLista.append(elements.__dict__)
-    new_prod_list = create_object(new_prod_id, new_prod_name, new_prod_amount, new_prod_price)
-    addLista.append(slownik)
-    # print(addLista)
-
-    add_Obj_list = StockProducts(addLista)
-    # addLista.append(add_Obj_list)
-    print(add_Obj_list.prod_list)
-
-
-    # GET VALUE
-    # value = 1
-    # for elements in obj_list.prod_list:
-    #     value = int(elements.count_value())
-    # print(value)
-
-
-
-
-
+    list_of_products = []
+    response_dict = {}
+    product_id_list = []
+    for element in obj_list.prod_list:
+        list_of_products.append(element.change_to_dict())
+    for product in list_of_products:
+        if str(index) == product["pr_index"]:
+            # return list_of_products[index - 1]
+            response_dict = list_of_products[index - 1]
+        product_id_list.append(product["pr_index"])
+    if str(index) not in product_id_list:
+        response_dict = f"Product with id {index} not found in product list."
+    response_data["data"] = response_dict
+"""
 
 if __name__ == '__main__':
     main()
