@@ -1,6 +1,9 @@
+import sys
+
 from flask import Flask, jsonify, request
 from object_classes import Product, StockProducts
 import helpers
+import os
 # obj_list = StockProducts().prod_list
 
 app = Flask(__name__)
@@ -16,7 +19,6 @@ def load_data():
     path_of_file = filepath["filepath"]
     try:
         helpers.data_loader(path_of_file)
-        # a = helpers.stock_object.prod_list
         response_data["data"] = helpers.stock_object.get_products_as_dicts()
         response = jsonify(response_data)
         response.status_code = 200
@@ -73,7 +75,7 @@ def add_product():
                 return jsonify(response_data)
 
         helpers.stock_object.prod_list.append(new_product)
-        # response_data["data"] = helpers.stock_object.get_products_as_dicts()
+        response_data["data"] = helpers.stock_object.get_products_as_dicts()
         response = jsonify(response_data)
     except KeyError as error:
         response_data["data"] = f'The entered data {error} is incorrect.'
@@ -110,7 +112,7 @@ def update_product(index: int):
         if index == product.pr_index:
             helpers.stock_object.prod_list.pop(index-1)
             helpers.stock_object.prod_list.insert(index-1, updated_product)
-    # response_data["data"] = helpers.stock_object.get_products_as_dicts()
+    response_data["data"] = helpers.stock_object.get_products_as_dicts()
     return jsonify(response_data)
 
 
@@ -124,7 +126,7 @@ def delete_product(index: int):
     for product in helpers.stock_object.prod_list:
         if index == product.pr_index:
             helpers.stock_object.prod_list.remove(helpers.stock_object.prod_list[index - 1])
-    # response_data["data"] = helpers.stock_object.get_products_as_dicts()
+    response_data["data"] = helpers.stock_object.get_products_as_dicts()
     return jsonify(response_data)
 
 
