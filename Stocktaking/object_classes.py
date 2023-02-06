@@ -32,6 +32,10 @@ class StockProducts:
             list_of_product_dicts.append(json_prod)
         return list_of_product_dicts
 
+    def find_product_by_index(self, index: int):
+        for product in self.prod_list:
+            if index == product.pr_index:
+                return product
 #
 # class StockEncoder(json.JSONEncoder):
 #     def default(self, obj):

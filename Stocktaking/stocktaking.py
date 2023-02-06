@@ -1,10 +1,6 @@
-import sys
-
 from flask import Flask, jsonify, request
-from object_classes import Product, StockProducts
-import helpers
-import os
-# obj_list = StockProducts().prod_list
+from Stocktaking.object_classes import Product
+from Stocktaking import helpers
 
 app = Flask(__name__)
 
@@ -23,16 +19,16 @@ def load_data():
         response = jsonify(response_data)
         response.status_code = 200
         return response
-    except ValueError:
+    except IOError as e:
         response_data["success"] = False
-        response_data["data"] = f"Data could not been loaded."
+        response_data["message"] = e.message
         response = jsonify(response_data)
-        response.status_code = 404
+        response.status_code = 400
         return response
 
 
 # returns information about all products in app storage
-@app.route('/products_all')
+@app.route('/products_all', methods=['GET'])
 def get_products():
     response_data = {
         "success": True,
@@ -42,19 +38,19 @@ def get_products():
 
 
 # returns information about specific resource (product)
-@app.route('/products/<int:index>')
+@app.route('/products/<int:index>', methods=['GET'])
 def get_product(index: int):
     response_data = {
         'success': True,
-        'data': helpers.stock_object.get_products_as_dicts()
+        'data': []
     }
-    product_id_list = []
     for element in helpers.stock_object.prod_list:
         if element.pr_index == index:
             response_data["data"] = element.__dict__
-        product_id_list.append(element.pr_index)
-        if index not in product_id_list:
-            response_data["data"] = f"Index {index} out of range."
+            break
+    if not response_data["data"]:
+        response_data["message"] = f"Index {index} out of range."
+        response_data["success"] = False
 
     return jsonify(response_data)
 
@@ -64,21 +60,23 @@ def get_product(index: int):
 def add_product():
     response_data = {
         'success': True,
-        'data': helpers.stock_object.get_products_as_dicts()
+        'data': []
     }
     new_data = request.json
     try:
         new_product = Product(new_data["pr_index"], new_data["name"], new_data["amount"], new_data["price"])
-        for element in helpers.stock_object.prod_list:
-            if int(new_product.pr_index) == int(element.__dict__["pr_index"]):
-                response_data["data"] = f"Product with index {int(new_product.pr_index)} already exists."
-                return jsonify(response_data)
+        product = helpers.stock_object.find_product_by_index(new_product.pr_index)
+        if product is None:
+            helpers.stock_object.prod_list.append(new_product)
+            response_data["data"] = new_product.change_to_dict()
+            response = jsonify(response_data)
+        else:
+            response_data["message"] = f"Product with index {int(new_product.pr_index)} already exists."
+            response_data["success"] = False
+            return jsonify(response_data)
 
-        helpers.stock_object.prod_list.append(new_product)
-        response_data["data"] = helpers.stock_object.get_products_as_dicts()
-        response = jsonify(response_data)
     except KeyError as error:
-        response_data["data"] = f'The entered data {error} is incorrect.'
+        response_data["message"] = f'The entered data {error} is incorrect.'
         response_data["success"] = False
         response = jsonify(response_data)
         response.status_code = 400
@@ -103,7 +101,7 @@ def not_found(error):
 def update_product(index: int):
     response_data = {
         'success': True,
-        'data': helpers.stock_object.get_products_as_dicts()
+        'data': []
     }
     updated_data = request.json
     updated_product = Product(updated_data["pr_index"], updated_data["name"], updated_data["amount"], updated_data["price"])
@@ -121,12 +119,11 @@ def update_product(index: int):
 def delete_product(index: int):
     response_data = {
         'success': True,
-        'data': helpers.stock_object.get_products_as_dicts()
+        'data': []
     }
-    for product in helpers.stock_object.prod_list:
-        if index == product.pr_index:
-            helpers.stock_object.prod_list.remove(helpers.stock_object.prod_list[index - 1])
-    response_data["data"] = helpers.stock_object.get_products_as_dicts()
+    product = helpers.stock_object.find_product_by_index(index)
+    helpers.stock_object.prod_list.remove(product)
+    response_data["message"] = f'Product {index} successfully deleted.'
     return jsonify(response_data)
 
 
@@ -135,13 +132,12 @@ def delete_product(index: int):
 def get_value(index: int):
     response_data = {
         'success': True,
-        'data': helpers.stock_object.get_products_as_dicts()
+        'data': []
     }
 
-    for element in helpers.stock_object.prod_list:
-        if index == element.pr_index:
-            value = element.count_value()
-    response_data["data"] = f"The value of product no {index} equals {value} EUR."
+    product = helpers.stock_object.find_product_by_index(index)
+    value = product.count_value()
+    response_data["message"] = f"The value of product no {index} equals {value} EUR."
     return jsonify(response_data)
 
 

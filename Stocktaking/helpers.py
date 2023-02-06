@@ -1,4 +1,4 @@
-from object_classes import Product,  StockProducts
+from Stocktaking.object_classes import Product, StockProducts
 import os
 
 stock_object = StockProducts()
@@ -12,12 +12,10 @@ def data_loader(file_path):
                     product_data = row.split(",")
                     product = Product(int(product_data[0]), product_data[1], int(product_data[2]), int(product_data[3]))
                     stock_object.prod_list.append(product)
-            # elif len(stock_object.prod_list) > 0:
-            #     raise IOError(f'')
             else:
-                raise IOError(f"Your file is empty or Your data have already been loaded..")
+                raise IOError(f"Your file is empty or your data have already been loaded.")
     except FileNotFoundError:
-        return f'File path "{file_path}" was not found.'
+        raise IOError(f'File path "{file_path}" was not found.')
 
 
 def save_data(filename):
