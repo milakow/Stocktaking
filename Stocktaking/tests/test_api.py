@@ -48,3 +48,4 @@ def test_update_product(create_stock):
     res = json.loads(response.data.decode('utf-8'))
     assert res['data'] == updated_product_data
 
+
