@@ -5,7 +5,7 @@ from Stocktaking.helpers import stock_object
 from Stocktaking.stocktaking import app
 
 @pytest.fixture()
-def app():
+def application():
     # applic = app
     # applic.config.update({
     #     "TESTING": True,
@@ -19,7 +19,7 @@ def app():
 
 
 @pytest.fixture()
-def client(app):
+def client(application):
     return app.test_client()
 
 
